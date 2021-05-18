@@ -6,6 +6,9 @@ from DrawableRectangle import DrawableRectangle
 from PIL import ImageTk, Image
 import os
 
+#input: string of filename path, string of refrence image path
+#launchs interface for user to input parameters
+#output: bounds of watch zone, start and end frame, PSNR threshold, video FPS
 def load_interface(filename, ref_img):
     root = Tk()
     root.title("Cyna's HP 6th Gen Load Remover")

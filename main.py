@@ -13,12 +13,15 @@ import cv2
 import PIL.Image, PIL.ImageTk
 import os
 from tqdm.tk import trange, tqdm
+
+#Returns filepath string of the video selected by user
 def get_file():
     root = Tk()
     filename = filedialog.askopenfilename(title="Import video")
     root.destroy()
     return filename
 
+#Create a options list, users selects the game, get_game() retrieves its reference image filepath
 def get_game():
     def OK():
         root.destroy()
@@ -39,7 +42,10 @@ def get_game():
     root.mainloop()
     return answer.get()
 
-
+#runs for each allocated process
+#input: group_number_list = parameters list, includes PSNR threshold and portion of video to process
+#output: number of load frames for the selected video portion
+#to-do: add sleep() calls to reduce CPU usage
 def process_video_multiprocessing(group_number_list):
     ref_img = group_number_list[0]
     x1 = group_number_list[1]
@@ -80,6 +86,7 @@ def process_video_multiprocessing(group_number_list):
     cap.release()
     return load_frames
 
+#spawns processes for all video chunks, collects and tallies load frame count, converts to times and displays them
 def multi_process():
     root = Tk()
     root.title("Video Results")
