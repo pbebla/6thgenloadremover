@@ -7,7 +7,6 @@ import threading
 from tkinter import *
 from tkinter import ttk
 from tkinter import filedialog
-import threading
 import zoneselector
 import cv2
 import PIL.Image
