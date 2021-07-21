@@ -1,7 +1,9 @@
 from tkinter import *
 from tkinter import ttk
 import cv2
-import PIL.Image, PIL.ImageTk
+import PIL.Image
+from PIL import ImageTk
+from skimage.metrics import structural_similarity as ssim
 
 
 def clip(bottom, value, top):
@@ -15,7 +17,7 @@ def clip(bottom, value, top):
 
 class DrawableRectangle(Canvas):
 
-    def __init__(self, master, ref_img, img, **kw):
+    def __init__(self, master, ref_imgs, img, **kw):
         super().__init__(master, **kw)
         self.drawnrect = None
         self.bind("<Button-1>", self._mouse_down)
@@ -24,6 +26,8 @@ class DrawableRectangle(Canvas):
         self.y1 = IntVar(0)
         self.x2 = IntVar(0)
         self.y2 = IntVar(0)
+        self.width = self.winfo_width()
+        self.height = self.winfo_height()
         self.x1.trace("w", self.redraw_rect)
         self.y1.trace("w", self.redraw_rect)
         self.x2.trace("w", self.redraw_rect)
@@ -32,9 +36,11 @@ class DrawableRectangle(Canvas):
         self.HP3_x2 = 0.5625
         self.HP3_y1 = 0.84489187173
         self.HP3_y2 = 0.89560029828
-        self.reference = ref_img
+        self.references = ref_imgs
         self.img = img
         self.psnrVal = DoubleVar(0.0)
+        self.which = 0
+
 
     def set_img(self, img):
         self.img = img
@@ -59,10 +65,10 @@ class DrawableRectangle(Canvas):
         _x2 = self.x2.get()
         _y2 = self.y2.get()
         if self.drawnrect is None:
-            self.drawnrect = self.create_rectangle(_x1, _y1, _x2, _y2, outline="red")
+            self.drawnrect = self.create_rectangle(
+                _x1, _y1, _x2, _y2, outline="red")
         else:
             self.coords(self.drawnrect, _x1, _y1, _x2, _y2)
-
 
     def set_point_1(self, x, y):
         ih, iw = self.winfo_height(), self.winfo_width()
@@ -83,8 +89,21 @@ class DrawableRectangle(Canvas):
         _y1 = min(int(self.y1.get()), int(self.y2.get()))
         _x2 = max(int(self.x1.get()), int(self.x2.get()))
         _y2 = max(int(self.y1.get()), int(self.y2.get()))
-        if(abs(_x2-_x1)!=0 and abs(_y2-_y1)!=0):
+        if(abs(_x2-_x1) != 0 and abs(_y2-_y1) != 0):
             tempImg = self.img[_y1:_y2, _x1:_x2]
-            resized = cv2.resize(tempImg, (self.reference.shape[1],self.reference.shape[0]))
-            self.psnrVal.set(cv2.PSNR(self.reference, resized))
+            resized = cv2.resize(
+                # TODO: Verify that each reference image is the same size --Ted
+                tempImg, (self.references[0].shape[1], self.references[0].shape[0]))
+
+            max_value = -1
+            grayResized = cv2.cvtColor(resized, cv2.COLOR_BGR2GRAY)
+            for i in range(len(self.references)):
+                grayRef = cv2.cvtColor(self.references[i], cv2.COLOR_BGR2GRAY)
+                value, diff = ssim(grayRef, grayResized, full=TRUE)
+                #value = cv2.PSNR(self.references[i], resized)
+                if value > max_value:
+                    max_value = value
+                    self.which = i
+
+            self.psnrVal.set(max_value)
             return self.psnrVal.get()
