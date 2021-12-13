@@ -34,9 +34,9 @@ def get_game():
     root.focus_force()
     answer = StringVar()
     root.title("Choose Game")
-    #hp1 = Radiobutton(root, text="HP1 Xbox/PS2/Gamecube", variable=answer, value="Images/hp1.png", state=DISABLED)
+    hp1 = ttk.Radiobutton(root, text="HP1 Xbox/PS2/Gamecube", variable=answer, value="Images/hp1.png")
     hp2 = ttk.Radiobutton(root, text="HP2 Xbox/Gamecube",
-                          variable=answer, value="Images/hp2.png")
+                          variable=answer, value="Images/hp2.png;Images/hp2-2.png;Images/hp2-3.png")
     hp2pc = ttk.Radiobutton(root, text="HP2 PC", variable=answer,
                             value="Images/hp2pc_cs1.png;Images/hp2pc_cs2.png;Images/hp2pc_cs3.png")
     hp2ps2 = ttk.Radiobutton(root, text="HP2 PS2",
@@ -44,7 +44,7 @@ def get_game():
     hp3 = ttk.Radiobutton(root, text="HP3 Xbox/PS2/Gamecube",
                           variable=answer, value="Images/loading.png")
     ok = Button(root, text="OK", command=OK)
-    # hp1.pack()
+    hp1.pack()
     hp2.pack()
     hp2pc.pack()
     hp2ps2.pack()
